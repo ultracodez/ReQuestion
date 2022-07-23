@@ -1,43 +1,20 @@
 {
-  "name": "requestionio",
-  "version": "1.0.0",
-  "description": "Restating the question detector.",
-  "main": "index.html",
-  "license": "UNLICENSED",
+  "name": "requestion",
+  "version": "0.9.0",
+  "description": "A detector which uses FinNLP to detect where a sentence is a restatement of a question.",
+  "main": "package/index.js",
   "scripts": {
-    "start": "parcel index.html --open",
-    "build": "parcel build index.html --no-minify"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-    "@types/gapi": "0.0.41",
-    "@types/gapi.auth2": "0.0.56",
-    "@types/gapi.client": "1.0.5",
-    "alex": "10.0.0",
-    "compromise": "14.0.0",
-    "compromise-sentences": "0.3.0",
-    "en-inflectors": "1.0.12",
-    "en-norm": "0.0.3",
-    "en-stemmer": "1.0.3",
-    "fin-emphasis": "1.0.6",
-    "fin-negation": "1.0.8",
-    "fin-sentence-type": "1.0.3",
-    "fin-sentiment": "1.0.6",
-    "fin-tense": "1.0.2",
-    "fin-ukus": "1.0.1",
-    "finnlp": "1.1.1",
-    "gender-detection-from-name": "1.7.3",
-    "humannames": "1.0.5",
-    "jquery": "3.6.0",
-    "parcel-bundler": "^1.6.1",
-    "quill": "1.3.7",
-    "spell-checker-js": "1.2.6"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ultra-max99/ReQuestion.Io.git"
   },
-  "devDependencies": {
-    "@babel/core": "7.2.0",
-    "typescript": "4.4.4"
+  "keywords": ["nlp", "restatement", "english"],
+  "author": "Ultra-max99",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ultra-max99/ReQuestion.Io/issues"
   },
-  "resolutions": {
-    "@babel/preset-env": "7.13.8"
-  },
-  "keywords": []
+  "homepage": "https://github.com/Ultra-max99/ReQuestion.Io#readme"
 }
