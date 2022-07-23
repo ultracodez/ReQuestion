@@ -1,0 +1,74 @@
+function getQObject(q, QWord) {
+  console.log(`getQObject(${q.text()},${QWord})`);
+  var isQObject = q.match(
+    "^#QuestionWord [(#Determiner? #Adjective+? #Noun|#Determiner)] #Adverb+? (#Verb|Will)"
+  );
+  console.log(`getQObject(): isQO: ${isQObject.text()}`);
+  if (isQObject.found) {
+    console.log(`getQObject(): ${isQObject.groups(0).clone().text()}`);
+    return isQObject.groups(0).clone();
+  } else {
+    console.log(`getQObject(): Not QObject QUestion`);
+    return nlp("");
+  }
+}
+function getAuxiliary(q, QWord) {
+  console.log(`getAuxiliary(${q.text()},${QWord})`);
+  var qpart = q.clone();
+  var aux = qpart
+    .match(
+      "[#Adverb+? (#Verb|Will|Have)] #Determiner? #Adjective+? (#Noun of * that|#ProperNoun|#Pronoun|#Noun)",
+      0
+    )
+    .first()
+    .clone();
+  console.log(`getAuxiliary: ${aux.text()}`);
+  return aux;
+}
+function getSubject(q, QWord) {
+  console.log(`getSubject(${q.text()},${QWord})`);
+  var sub = q
+    .match(
+      "#Adverb+? (#Verb|Will) [(#Determiner|My|Your|Our|His|Her|Their)? #Adjective+? (#Noun of * that|#ProperNoun|#Pronoun|#Noun) that?]",
+      0
+    )
+    .first()
+    .clone();
+  console.log(`getSubject(): ${sub.text()}`);
+  return sub;
+}
+function getMainVerb(q, QWord) {
+  console.log(`getMainVerb(${q.text()},${QWord})`);
+  var mv = q
+    .match(
+      "#Adverb+? (#Verb|Will) (#Determiner|My|Your|Our|His|Her|Their)? #Adjective+? (#Noun of * that|#ProperNoun|#Pronoun|#Noun) that? [#Adverb+? (#Verb|Done|makes|Weigh|Bark)]",
+      0
+    )
+    .first()
+    .clone();
+  console.log(`getMainVerb(): ${mv.text()}`);
+  return mv;
+}
+function getOObject(q, QWord) {
+  console.log(`getOObject(${q.text()},${QWord})`);
+  var oo = q
+    .match(
+      "#Adverb+? (#Verb|Will) (#Determiner|My|Your|Our|His|Her|Their)? #Adjective+? (#Noun of * that|#ProperNoun|#Pronoun|#Noun) that? (#Verb|Done|weigh|bark|makes) [#Adverb+? . *]", //replace . * if fail
+      0
+    )
+    .first()
+    .clone()
+    .post(" ");
+  if (!oo.found) {
+    oo = q
+      .match(
+        "^#QuestionWord #Adverb+? (#Verb|Will) (#Determiner|My|Your|Our|His|Her|Their)? #Adjective+? (#Noun of * that|#ProperNoun|#Pronoun|#Noun) that? [#Adverb+? . *]", //replace . * if fail
+        0
+      )
+      .first()
+      .clone()
+      .post(" ");
+  }
+  console.log(`getOObject(): ${oo.text()}`);
+  return oo;
+}

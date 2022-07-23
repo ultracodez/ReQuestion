@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      console.clear();
+    </script>
+
+    <title>ReQuestion.Io</title>
+    <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link id="favicon" rel="icon" href="/src/Logo1.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="src/styles.css"/>
+  </head>
+
+  <body class="d-flex flex-column h-100">
+    
+      <div class="loading-overlay">
+          <div class="d-flex justify-content-center align-items-center spinner-top">
+            <div class="spinner"></div>
+          </div>
+          </div>
+    <header class="sticky-top">
+      <div class="container" style="background: white;">
+        <header class="d-flex justify-content-center py-3">
+          <ul class="nav nav-pills">
+            <li class="nav-item">
+              <a href="/index.html"  class="nav-link" aria-current="page"
+                >Home</a
+              >
+            </li>
+            <li class="nav-item">
+              <a href="/demo.html" class="nav-link">Demo</a>
+            </li>
+            
+            <li class="nav-item">
+              <a href="/analysis.html" class="nav-link">Analyzer</a>
+            </li>
+            <li class="nav-item">
+              <a href="/extension.html" class="nav-link">Extension</a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link active">About</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a tabindex="0" onkeydown="(this.click())" class="nav-link dropdown-toggle" id="ExtraNavDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Extra</a>
+              <ul class="dropdown-menu" aria-labelledby="ExtraNavDropdown">
+                <li><a class="dropdown-item" href="/roadmap.html">Roadmap</a></li>
+
+              <li><a class="dropdown-item" href="https://docs.google.com/spreadsheets/d/1SZ7Kc3ZkEtp-39wXiH_nP8OgtjPaUfbR9QZAuXP1Hno/edit?usp=sharing">Testing Spreadsheet</a></li>
+                <li style="display:none; overflow:hidden;"><a class="dropdown-item" href="/testing.html">Tester</a></li>
+              </ul>
+            </li>
+          </ul>
+        </header>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <div class="row mb-4 align-items-center">
+          <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="lc-block text-center">
+              <img
+                class="img-fluid w-50"
+                src="https://cdn.livecanvas.com/media/svg/isometric/app_development_SVG.svg"
+              />
+            </div>
+            <!-- /lc-block -->
+          </div>
+          <!-- /col -->
+          <div class="col-lg-6 p-lg-6">
+            <div class="lc-block mb-5">
+              <div editable="rich">
+                <h2 class="display-6 fw-bold">
+                  Write <span style="color: #8c50ff;">Better</span> Writing
+                </h2>
+
+                <p class="lead">
+                  <br />Make sure you start off
+                  <span style="color: #8c50ff;">strong</span> with a restatement
+                  to your prompt.
+                </p>
+              </div>
+            </div>
+            <!-- /lc-block -->
+            <!-- /lc-block -->
+            <div class="lc-block">
+              <div class="d-inline-flex">
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1em"
+                    height="1em"
+                    fill="currentColor"
+                    style="color: #8c50ff;"
+                    viewBox="0 0 16 16"
+                    lc-helper="svg-icon"
+                  >
+                    <path
+                      d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
+                    ></path>
+                  </svg>
+                </div>
+
+                <div class="ms-3 align-self-center" editable="rich">
+                  <p><span style="color: #8c50ff;">90+</span>% Accuracy</p>
+                </div>
+              </div>
+            </div>
+            <div class="lc-block">
+              <div class="d-inline-flex">
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1em"
+                    height="1em"
+                    fill="currentColor"
+                    style="color: #8c50ff;"
+                    viewBox="0 0 16 16"
+                    lc-helper="svg-icon"
+                  >
+                    <path
+                      d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
+                    ></path>
+                  </svg>
+                </div>
+
+                <div class="ms-3 align-self-center" editable="rich">
+                  <p>
+                    <span style="color: #8c50ff;">Hints</span> along the way.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="lc-block">
+              <div class="d-inline-flex">
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1em"
+                    height="1em"
+                    fill="currentColor"
+                    style="color: #8c50ff;"
+                    viewBox="0 0 16 16"
+                    lc-helper="svg-icon"
+                  >
+                    <path
+                      d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
+                    ></path>
+                  </svg>
+                </div>
+
+                <div class="ms-3 align-self-center" editable="rich">
+                  <p>
+                    <span style="color: #8c50ff;">Less</span> time restating,
+                    <span style="color: #8c50ff;">more</span> time writing.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <!-- /lc-block -->
+          </div>
+          <!-- /col -->
+        </div>
+        <div class="row mb-4 align-items-center">
+          <div class="col-lg-6 mb-4 mb-lg-0 order-lg-1">
+            <div class="lc-block text-center">
+              <img
+                class="img-fluid w-50"
+                src="https://cdn.livecanvas.com/media/svg/isometric/Startup_SVG.svg"
+              />
+            </div>
+            <!-- /lc-block -->
+          </div>
+          <!-- /col -->
+          <div class="col-lg-6 p-lg-6">
+            <div class="lc-block mb-5">
+              <div editable="rich">
+                <h2 class="display-6 fw-bold">
+                  Supports <span style="color: #8c50ff">All</span> Questions
+                </h2>
+
+                <p class="lead">
+                  <br />A brand new restatement <span >detector, polished to <span style="color: #8c50ff">perfection</span>.
+                </p>
+              </div>
+            </div>
+            <!-- /lc-block -->
+            <!-- /lc-block -->
+            <div class="lc-block">
+              <div class="d-inline-flex">
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1em"
+                    height="1em"
+                    fill="currentColor"
+                    style="color: #8c50ff"
+                    viewBox="0 0 16 16"
+                    lc-helper="svg-icon"
+                  >
+                    <path
+                      d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
+                    ></path>
+                  </svg>
+                </div>
+
+                <div class="ms-3 align-self-center" editable="rich">
+                  <p>Quick and fast, under <span style="color: #8c50ff">1s</span></p>
+                </div>
+              </div>
+            </div>
+            <div class="lc-block">
+              <div class="d-inline-flex">
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1em"
+                    height="1em"
+                    fill="currentColor"
+                    style="color: #8c50ff"
+                    viewBox="0 0 16 16"
+                    lc-helper="svg-icon"
+                  >
+                    <path
+                      d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
+                    ></path>
+                  </svg>
+                </div>
+
+                <div class="ms-3 align-self-center" editable="rich">
+                  <p><span style="color: #8c50ff">Adaptive</span> analyzer</p>
+                </div>
+              </div>
+            </div>
+            <div class="lc-block">
+              <div class="d-inline-flex">
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1em"
+                    height="1em"
+                    fill="currentColor"
+                    style="color: #8c50ff"
+                    viewBox="0 0 16 16"
+                    lc-helper="svg-icon"
+                  >
+                    <path
+                      d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"
+                    ></path>
+                  </svg>
+                </div>
+
+                <div class="ms-3 align-self-center" editable="rich">
+                  <p>Constructive <span style="color: #8c50ff">feedback</span></p>
+                </div>
+              </div>
+            </div>
+            <!-- /lc-block -->
+          </div>
+          <!-- /col -->
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-light">
+      <center class="container">
+        <br />
+        <br />
+        <p>
+          Thanks to
+          <a style="color: #8c50ff" href="https://www.englishclub.com/grammar/questions.htm"
+            >EnglishClub</a
+          >
+          for the grammatical syntax of questions!
+        </p>
+        <p>
+          Thanks to
+          <a style="color: #8c50ff" href="https://github.com/spencermountain/compromise"
+            >Compromise.js</a
+          >
+          and
+          <a href="https://github.com/FinNLP/fin" style="color:#8c50ff">
+          FinNLP
+          </a>
+          for the Natural Language Processor used in this project!
+        </p>
+        <p class="font-monospace" style="font-size: 0.75em;">
+          © 2022 Eduardo Maroto Campos
+        </p>
+        <br /><br />
+      </center>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    
+    <script src="src/events.js"></script>
+    <!--
+			<script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+		--></body>
+  <!--
+  <footer>
+    <center>
+      <p>
+        Thanks to
+        <a href="https://www.englishclub.com/grammar/questions.htm"
+          >EnglishClub</a
+        >
+        for the grammatical syntax of questions!
+      </p>
+      <br />
+      <p>
+        Thanks to
+        <a href="https://github.com/spencermountain/compromise"
+          >Compromise.js</a
+        >
+        for the Natural Language Processor used in this project!
+      </p>
+    </center>
+  </footer>
+--></html>

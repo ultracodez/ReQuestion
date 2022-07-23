@@ -1,0 +1,104 @@
+function Simple(q, t) {
+  var result = false;
+
+  if (q.match("^#QuestionWord")) {
+    console.log("QuestionWord Simple()");
+    var qpart = q.clone();
+    qpart.remove("^#QuestionWord");
+    var vbe = qpart.match("^#Verb").clone();
+    qpart.remove("^#Verb");
+    var subject = qpart.clone();
+    subject.terms().last().post(" ");
+
+    var phrase = nlp(subject.text() + " " + vbe.text());
+    var past = phrase.clone().sentences().toPastTense();
+    var present = phrase.clone().sentences().toPresentTense();
+    var future = phrase.clone().sentences().toFutureTense();
+
+    if (subject.match("#Pronoun").found) {
+      var any = "#Pronoun (be|was|is|am|are|were|been|being)";
+      if (t.clone().match(any).found) return true;
+    }
+
+    /*console.error(
+      `stt: ${phrase.text()} ${t.text()} ${SimpleTenseTest(phrase, t)}`
+    );
+    console.error(
+      `stt: ${past.text()} ${t.text()} ${SimpleTenseTest(past, t)}`
+    );
+    console.error(
+      `stt: ${future.text()} ${t.text()} ${SimpleTenseTest(future, t)}`
+    );
+    console.error(
+      `stt: ${present.text()} ${t.text()} ${SimpleTenseTest(present, t)}`
+    );*/
+
+    result =
+      SimpleTenseTest(phrase, t) ||
+      SimpleTenseTest(past, t) ||
+      SimpleTenseTest(present, t) ||
+      SimpleTenseTest(future, t) ||
+      result;
+  }
+  if (!result) {
+    console.log("Normal Simple()");
+    var qpartt = q.clone();
+    var vbet = qpartt.match("^#Verb").clone();
+    qpartt.remove("^#Verb");
+    var subjectt = qpartt.match("^(#ProperNoun|#Pronoun|#Noun)").clone();
+    qpartt.remove("^(#ProperNoun|#Pronoun|#Noun)");
+    var remain = qpartt.clone();
+    remain.terms().last().post(" ");
+
+    var phraset = nlp(
+      subjectt.text() + " " + vbet.text() + " " + remain.text()
+    );
+    var pastt = phraset.clone().sentences().toPastTense();
+    var presentt = phraset.clone().sentences().toPresentTense();
+    var futuret = phraset.clone().sentences().toFutureTense();
+
+    /*console.error(
+      `stt: ${phrase.text()} ${t.text()} ${SimpleTenseTest(phrase, t)}`
+    );
+    console.error(
+      `stt: ${past.text()} ${t.text()} ${SimpleTenseTest(past, t)}`
+    );
+    console.error(
+      `stt: ${future.text()} ${t.text()} ${SimpleTenseTest(future, t)}`
+    );
+    console.error(
+      `stt: ${present.text()} ${t.text()} ${SimpleTenseTest(present, t)}`
+    );*/
+
+    return (
+      SimpleTenseTest(phraset, t) ||
+      SimpleTenseTest(pastt, t) ||
+      SimpleTenseTest(presentt, t) ||
+      SimpleTenseTest(futuret, t)
+    );
+  }
+}
+function SimpleTenseTest(phrase, t) {
+  console.log(`Simple(): Phrase: "${phrase.text()}"`);
+  var NegativePhrase = phrase.sentences().clone().toNegative();
+  var PositivePhrase = phrase.sentences().clone().toPositive();
+  var NegativeePhrase = phrase.clone();
+  NegativeePhrase.matchOne("(be|was|is|am|are|were|been|being)").append(" not");
+  //console.log(`(): $.`);
+
+  console.log(`Simple(): Negative: "${NegativePhrase.text()}"`);
+  console.log(`Simple(): Negativee: "${NegativeePhrase.text()}"`);
+  console.log(`Simple(): Positive: "${PositivePhrase.text()}"`);
+  console.log(`Simple(): Compare: "${t.text()}"`);
+
+  return (
+    NegativePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    NegativeePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    PositivePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(PositivePhrase.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(NegativePhrase.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(NegativeePhrase.text().toLowerCase()) ||
+    phrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(phrase.text().toLowerCase())
+  );
+}

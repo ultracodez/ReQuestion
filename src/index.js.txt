@@ -1,0 +1,677 @@
+//Question Syntax: https://www.englishclub.com/grammar/questions.htm
+
+//Diff: tNegative and logic not present
+
+//TODO: check if there is negative in (Wh-) questions, then use negative if yes. (if not, no)
+//TODO: Make better ToNegative (detecting do and adding not)
+
+//var nlp = nlp;
+nlp.extend(compromiseSentences);
+
+//console.clear();
+
+/*IsRestatement("Where do you live?", "I live at McDonald's.");
+IsRestatement(
+  "Why hasn't Tara done it?",
+  "Tara hasn't done it because she can't"
+);
+IsRestatement("Where do you live?", "I don't live at McDonald's.");
+IsRestatement("Why hasn't Tara done it?", "she can't");*/
+
+function IsRestatement(q, t) {
+  //var nlp = nlp;
+  console.time("IsRestatement()");
+  var question = nlp(q);
+  if (question.sentences().length > 1 || question.sentences().length < 1) {
+    console.error("Too Many (or Too Little) Sentences!");
+    console.error(question.sentences());
+    return false;
+  }
+
+  var text = nlp(t);
+
+  if (question.sentences().isQuestion().length === 1) {
+    //console.log(`Parse(): "${question.text()}", "${text.text()}"`);
+    var result = Parse(question, text);
+    console.timeEnd(`IsRestatement()`);
+    return result;
+  } else {
+    return false;
+  }
+}
+
+function Parse(q, t) {
+  var qpart = q.clone();
+  var tpart = t.clone();
+  console.log(`Parse(): QPart: ${qpart.text()}`);
+  console.log(`Parse(): TPart: ${tpart.text()}`);
+  if (qpart && tpart) {
+    var A = YesNo(qpart, tpart);
+    console.log(`Parse(): YesNo Result: ${A}`);
+    var B = QuestionWord(qpart, tpart); //AttemptB(qpart, tpart);
+    console.log(`Parse(): QuestionWord Result: ${B}`);
+    var C = Tag(qpart, tpart);
+    console.log(`Parse(): Tag Result: ${C}`);
+    return A || B || C;
+  } else return null;
+}
+
+function IsYesNo(q) {
+  var qpart = q.match(
+    "#QuestionWord? (#Verb|Will) (#ProperNoun|#Noun|#Pronoun) #Verb *"
+  );
+
+  //console.warn(qpart.match("(Who|What|When|How|Why|Where|Which)"));
+  if (!qpart.found) return false;
+  else if (qpart.match("(Who|What|When|How|Why|Where|Which)").found)
+    return false;
+  else return true;
+}
+
+function YesNo(q, t) {
+  var qpart = q
+    .match("#QuestionWord? (#Verb|Will) (#ProperNoun|#Noun|#Pronoun) #Verb *")
+    .clone();
+
+  //console.log(q.json());
+  console.log(`YesNo(): Match: ${qpart.text()}`);
+  if (!qpart.found) return false;
+  else if (qpart.match("(Who|What|When|How|Why|Where|Which)").found)
+    return false;
+  //console.log(q.json());
+
+  var Auxiliary = qpart.matchOne("(#Verb|Will)").clone();
+  qpart.matchOne("(#Verb|Will)").remove();
+  var Subject = qpart.matchOne("(#ProperNoun|#Noun|#Pronoun)").clone();
+  qpart.matchOne("(#ProperNoun|#Noun|#Pronoun)").remove();
+  var MainVerb = qpart.matchOne("#Verb").clone();
+  qpart.verbs().first().remove();
+
+  console.log(`YesNo(): Remainder: "${qpart.text()}"`);
+  console.log(`YesNo(): Auxiliary: "${Auxiliary.text()}"`);
+  console.log(`YesNo(): Subject: "${Subject.text()}"`);
+  console.log(`YesNo(): MainVerb: "${MainVerb.text()}"`);
+
+  return EvalYesNo(Subject, Auxiliary, MainVerb, qpart, t) || YesNoSimple(q, t);
+}
+
+function EvalYesNo(sub, aux, verb, remain, compare) {
+  var phrase = nlp(
+    sub.text() +
+      " " +
+      aux.text().toLowerCase() +
+      " " +
+      verb.text() +
+      " " +
+      remain.text()
+  );
+  console.log(`EvalYesNo(): Phrase: "${phrase.text()}"`);
+  var NegativePhrase = phrase.sentences().clone().toNegative();
+  var PositivePhrase = phrase.sentences().clone().toPositive();
+  //console.log(`(): $.`);
+  console.log(`EvalYesNo(): Negative "${NegativePhrase.text()}"`);
+  console.log(`EvalYesNo(): Positive: "${PositivePhrase.text()}"`);
+  console.log(`EvalYesNo(): Compare: "${compare.text()}"`);
+  return (
+    NegativePhrase.text()
+      .toLowerCase()
+      .includes(compare.text().toLowerCase()) ||
+    PositivePhrase.text()
+      .toLowerCase()
+      .includes(compare.text().toLowerCase()) ||
+    compare
+      .text()
+      .toLowerCase()
+      .includes(PositivePhrase.text().toLowerCase()) ||
+    compare
+      .text()
+      .toLowerCase()
+      .includes(NegativePhrase.text().toLowerCase()) ||
+    phrase.text().toLowerCase().includes(compare.text().toLowerCase()) ||
+    compare.text().toLowerCase().includes(phrase.text().toLowerCase())
+  );
+}
+
+function YesNoSimple(q, t) {
+  if (!IsSimple(q)) return false;
+  return Simple(q, t);
+}
+
+//var result = QuestionWordWho(nlp("Who has run out"), nlp("Ati has run out"));
+//console.log(result);
+
+function QuestionWordWho(q, t) {
+  var qpart = q.clone();
+  qpart.remove("^#QuestionWord");
+  var Auxiliary = qpart.matchOne("(#Verb|Will)").clone();
+  qpart.matchOne("(#Verb|Will)").remove();
+  qpart.remove("^#Negative");
+  var Subject = qpart.matchOne("(#ProperNoun|#Noun|#Pronoun)").clone();
+  qpart.remove("^(#ProperNoun|#Noun|#Pronoun)");
+  var MainVerb = qpart.matchOne("(#Verb|done)").clone();
+  qpart.matchOne("(#Verb|done)").remove();
+
+  console.log(`QuestionWordWho(): Remainder: "${qpart.text()}"`);
+  console.log(`QuestionWordWho(): Auxiliary: "${Auxiliary.text()}"`);
+  console.log(`QuestionWordWho(): Subject: "${Subject.text()}"`);
+  console.log(`QuestionWordWho(): MainVerb: "${MainVerb.text()}"`);
+
+  var result = false;
+
+  if (Subject.found) {
+    var WhomPhrase = nlp(Subject.text() + " " + MainVerb.text());
+    console.log(`QuestionWordWho(): WhomPhrase: "${WhomPhrase.text()}"`);
+    result = QuestionWordWhoTenseTest(WhomPhrase, t) || result;
+  }
+  var WhoSubjectPhrase = nlp(
+    Auxiliary.text() + " " + MainVerb.text() + " " + qpart.text()
+  );
+  var WhoSimplePhrase = nlp(MainVerb.text() + " " + qpart.text());
+
+  console.log(
+    `QuestionWordWho(): WhoSubjectPhrase: "${WhoSubjectPhrase.text()}"`
+  );
+  console.log(
+    `QuestionWordWho(): WhoSimplePhrase: "${WhoSimplePhrase.text()}"`
+  );
+
+  result =
+    QuestionWordWhoTenseTest(WhoSubjectPhrase, t, MainVerb) ||
+    QuestionWordWhoTenseTest(WhoSimplePhrase, t, MainVerb) ||
+    result;
+
+  return result;
+}
+function QuestionWordWhoTenseTest(phrase, t, mvb) {
+  var past = phrase.clone().sentences().toPastTense();
+  var present = phrase.clone().sentences().toPresentTense();
+  var future = phrase.clone().sentences().toFutureTense();
+
+  return (
+    QuestionWordWhoTest(phrase, t, mvb) ||
+    QuestionWordWhoTest(past, t, mvb) ||
+    QuestionWordWhoTest(present, t, mvb) ||
+    QuestionWordWhoTest(future, t, mvb)
+  );
+}
+function QuestionWordWhoTest(phrase, t, mvb) {
+  console.log(`QuestionWordWhenWhy(): Phrase: "${phrase.text()}"`);
+  var NegativePhrase = phrase.sentences().clone().toNegative();
+  var PositivePhrase = phrase.sentences().clone().toPositive();
+
+  var NegativeePhrase = phrase.clone();
+  NegativeePhrase.matchOne(mvb.text()).prepend("not");
+  //console.log(`(): $.`);
+  console.log(
+    `QuestionWordWhoTenseTest(): Negative "${NegativePhrase.text()}"`
+  );
+  console.log(
+    `QuestionWordWhoTenseTest(): Positive: "${PositivePhrase.text()}"`
+  );
+  console.log(
+    `QuestionWordWhoTenseTest(): Negativee: "${NegativeePhrase.text()}"`
+  );
+  console.log(`QuestionWordWhoTenseTest(): Compare: "${t.text()}"`);
+
+  return (
+    NegativePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    PositivePhrase.text().toLowerCase().includes(t.text()) ||
+    t.text().toLowerCase().includes(PositivePhrase.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(NegativePhrase.text().toLowerCase()) ||
+    NegativeePhrase.text().includes(t.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(NegativeePhrase.text().toLowerCase()) ||
+    phrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(phrase.text().toLowerCase())
+  );
+}
+
+function QuestionWordWhenWhy(q, t) {
+  var qpart = q.clone();
+  qpart.remove("^#QuestionWord");
+  var Auxiliary = qpart.matchOne("(#Verb|Will)").clone();
+  qpart.matchOne("(#Verb|Will)").remove();
+  qpart.remove("^#Negative");
+  var Subject = qpart.matchOne("(#ProperNoun|#Noun|#Pronoun)").clone();
+  qpart.remove("^(#ProperNoun|#Noun|#Pronoun)");
+  var MainVerb = qpart.matchOne("(#Verb|done)").clone();
+  qpart.matchOne("(#Verb|done)").remove();
+
+  console.log(`QuestionWordWhenWhy(): Remainder: "${qpart.text()}"`);
+  console.log(`QuestionWordWhenWhy(): Auxiliary: "${Auxiliary.text()}"`);
+  console.log(`QuestionWordWhenWhy(): Subject: "${Subject.text()}"`);
+  console.log(`QuestionWordWhenWhy(): MainVerb: "${MainVerb.text()}"`);
+
+  var phrase = nlp(
+    Subject.text() +
+      " " +
+      Auxiliary.text().toLowerCase() +
+      " " +
+      MainVerb.text() +
+      " " +
+      qpart.text()
+  );
+
+  console.log(`QuestionWordWhenWhy(): Phrase: "${phrase.text()}"`);
+  var NegativePhrase = phrase.sentences().clone().toNegative();
+  var PositivePhrase = phrase.sentences().clone().toPositive();
+  //console.log(`(): $.`);
+  console.log(`QuestionWordWhenWhy(): Negative "${NegativePhrase.text()}"`);
+  console.log(`QuestionWordWhenWhy(): Positive: "${PositivePhrase.text()}"`);
+  console.log(`QuestionWordWhenWhy(): Compare: "${t.text()}"`);
+
+  return (
+    NegativePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    PositivePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(PositivePhrase.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(NegativePhrase.text().toLowerCase()) ||
+    phrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(phrase.text().toLowerCase())
+  );
+}
+function QuestionWordWhere(q, t) {
+  var qpart = q.clone();
+  qpart.remove("^#QuestionWord");
+  var Auxiliary = qpart.matchOne("(#Verb|Will)").clone();
+  qpart.matchOne("(#Verb|Will)").remove();
+  qpart.remove("^#Negative");
+  var Subject = qpart.matchOne("(#ProperNoun|#Noun|#Pronoun)").clone();
+  qpart.remove("^(#ProperNoun|#Noun|#Pronoun)");
+  var MainVerb = qpart.matchOne("(#Verb|done)").clone();
+  qpart.matchOne("(#Verb|done)").remove();
+
+  console.log(`QuestionWordWhere(): Remainder: "${qpart.text()}"`);
+  console.log(`QuestionWordWhere(): Auxiliary: "${Auxiliary.text()}"`);
+  console.log(`QuestionWordWhere(): Subject: "${Subject.text()}"`);
+  console.log(`QuestionWordWhere(): MainVerb: "${MainVerb.text()}"`);
+
+  var phrase = nlp(MainVerb.text() + " " + qpart.text());
+  var phraseaux = nlp(
+    Auxiliary.text() + " " + MainVerb.text() + " " + qpart.text()
+  );
+
+  console.log(`QuestionWordWhere(): AuxPhrase: "${phraseaux.text()}"`);
+  var AuxNegativePhrase = phraseaux.sentences().clone().toNegative();
+  var AuxPositivePhrase = phraseaux.sentences().clone().toPositive();
+  //console.log(`(): $.`);
+  console.log(`QuestionWordWhere(): AuxNegative "${AuxNegativePhrase.text()}"`);
+  console.log(
+    `QuestionWordWhere(): AuxPositive: "${AuxPositivePhrase.text()}"`
+  );
+  console.log(`QuestionWordWhere(): AuxCompare: "${t.text()}"`);
+  var auxphraseresult =
+    AuxNegativePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    AuxPositivePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(AuxPositivePhrase.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(AuxNegativePhrase.text().toLowerCase()) ||
+    phraseaux.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(phraseaux.text().toLowerCase());
+
+  console.log(`QuestionWordWhere(): Phrase: "${phrase.text()}"`);
+  var NegativePhrase = phrase.sentences().clone().toNegative();
+  var PositivePhrase = phrase.sentences().clone().toPositive();
+  //console.log(`(): $.`);
+  console.log(`QuestionWordWhere(): Negative "${NegativePhrase.text()}"`);
+  console.log(`QuestionWordWhere(): Positive: "${PositivePhrase.text()}"`);
+  console.log(`QuestionWordWhere(): Compare: "${t.text()}"`);
+
+  var phraseresult =
+    NegativePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    PositivePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(PositivePhrase.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(NegativePhrase.text().toLowerCase()) ||
+    phrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(phrase.text().toLowerCase());
+
+  console.log(`QuestionWordWhere(): PhraseResult: ${phraseresult}`);
+  console.log(`QuestionWordWhere(): AuxPhraseResult: ${auxphraseresult}`);
+
+  console.log(
+    `QuestionWordWhere(): StartsWithNouny: ${
+      t.match("^(#ProperNoun|#Pronoun|#Noun)").found
+    }`
+  );
+
+  return (
+    t.match("^(#ProperNoun|#Pronoun|#Noun)").found &&
+    (phraseresult || auxphraseresult)
+  );
+}
+
+//IsRestatement("Where is Bombay?", "Bombay is at their house.");
+//IsRestatement("How was she?", "She is fine.");
+//IsRestatement("How am I?", "I am fine.");
+//IsRestatement("Is Anne French?", "Anne is French.");
+
+function IsSimple(q) {
+  //be: be, was, is
+  var match = q.match(
+    "^#QuestionWord? (be|was|is|am|are|were|been|being) (#Noun|#Pronoun|#ProperNoun) *"
+  );
+  return match.found;
+}
+function Simple(q, t) {
+  var result = false;
+
+  if (q.match("^#QuestionWord")) {
+    console.log("QuestionWord Simple()");
+    var qpart = q.clone();
+    qpart.remove("^#QuestionWord");
+    var vbe = qpart.match("^#Verb").clone();
+    qpart.remove("^#Verb");
+    var subject = qpart.clone();
+    subject.terms().last().post(" ");
+
+    var phrase = nlp(subject.text() + " " + vbe.text());
+    var past = phrase.clone().sentences().toPastTense();
+    var present = phrase.clone().sentences().toPresentTense();
+    var future = phrase.clone().sentences().toFutureTense();
+
+    if (subject.match("#Pronoun").found) {
+      var any = "#Pronoun (be|was|is|am|are|were|been|being)";
+      if (t.clone().match(any).found) return true;
+    }
+
+    /*console.error(
+      `stt: ${phrase.text()} ${t.text()} ${SimpleTenseTest(phrase, t)}`
+    );
+    console.error(
+      `stt: ${past.text()} ${t.text()} ${SimpleTenseTest(past, t)}`
+    );
+    console.error(
+      `stt: ${future.text()} ${t.text()} ${SimpleTenseTest(future, t)}`
+    );
+    console.error(
+      `stt: ${present.text()} ${t.text()} ${SimpleTenseTest(present, t)}`
+    );*/
+
+    result =
+      SimpleTenseTest(phrase, t) ||
+      SimpleTenseTest(past, t) ||
+      SimpleTenseTest(present, t) ||
+      SimpleTenseTest(future, t) ||
+      result;
+  }
+  if (!result) {
+    console.log("Normal Simple()");
+    var qpartt = q.clone();
+    var vbet = qpartt.match("^#Verb").clone();
+    qpartt.remove("^#Verb");
+    var subjectt = qpartt.match("^(#ProperNoun|#Pronoun|#Noun)").clone();
+    qpartt.remove("^(#ProperNoun|#Pronoun|#Noun)");
+    var remain = qpartt.clone();
+    remain.terms().last().post(" ");
+
+    var phraset = nlp(
+      subjectt.text() + " " + vbet.text() + " " + remain.text()
+    );
+    var pastt = phraset.clone().sentences().toPastTense();
+    var presentt = phraset.clone().sentences().toPresentTense();
+    var futuret = phraset.clone().sentences().toFutureTense();
+
+    /*console.error(
+      `stt: ${phrase.text()} ${t.text()} ${SimpleTenseTest(phrase, t)}`
+    );
+    console.error(
+      `stt: ${past.text()} ${t.text()} ${SimpleTenseTest(past, t)}`
+    );
+    console.error(
+      `stt: ${future.text()} ${t.text()} ${SimpleTenseTest(future, t)}`
+    );
+    console.error(
+      `stt: ${present.text()} ${t.text()} ${SimpleTenseTest(present, t)}`
+    );*/
+
+    return (
+      SimpleTenseTest(phraset, t) ||
+      SimpleTenseTest(pastt, t) ||
+      SimpleTenseTest(presentt, t) ||
+      SimpleTenseTest(futuret, t)
+    );
+  }
+}
+function SimpleTenseTest(phrase, t) {
+  console.log(`Simple(): Phrase: "${phrase.text()}"`);
+  var NegativePhrase = phrase.sentences().clone().toNegative();
+  var PositivePhrase = phrase.sentences().clone().toPositive();
+  var NegativeePhrase = phrase.clone();
+  NegativeePhrase.matchOne("(be|was|is|am|are|were|been|being)").append(" not");
+  //console.log(`(): $.`);
+
+  console.log(`Simple(): Negative: "${NegativePhrase.text()}"`);
+  console.log(`Simple(): Negativee: "${NegativeePhrase.text()}"`);
+  console.log(`Simple(): Positive: "${PositivePhrase.text()}"`);
+  console.log(`Simple(): Compare: "${t.text()}"`);
+
+  return (
+    NegativePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    NegativeePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    PositivePhrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(PositivePhrase.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(NegativePhrase.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(NegativeePhrase.text().toLowerCase()) ||
+    phrase.text().toLowerCase().includes(t.text().toLowerCase()) ||
+    t.text().toLowerCase().includes(phrase.text().toLowerCase())
+  );
+}
+
+//possible ^#QuestionWord #Verb (#ProperNoun|#Pronoun|#Noun)  ***TheRest***
+//or       ^#QuestionWord #Verb ***TheRest***
+//example  What           is    Joel                            doing?
+//or       What           is    that truck's                    model?
+//leaning towards the second one
+function QuestionWordWhat(q, t) {}
+
+function QuestionWordWhich(q, t) {}
+
+function QuestionWord(q, t) {
+  var qpart = q
+    .match(
+      "#QuestionWord (#Verb|Will) (#ProperNoun|#Noun|#Pronoun) (#Verb|done) *"
+    )
+    .clone();
+
+  if (!qpart.found) {
+    qpart = q
+      .match(
+        "#QuestionWord (#Verb|Will) .? (#ProperNoun|#Noun|#Pronoun) (#Verb|done) *"
+      )
+      .clone();
+  }
+
+  if (!qpart.found && IsSimple(q)) {
+    qpart = q.clone();
+  }
+
+  console.log(`QuestionWord(): Match: ${qpart.text()}`);
+  if (!qpart.found) return false;
+
+  var answer = false;
+  var QWord = qpart.match("^#QuestionWord").text().toLowerCase();
+
+  console.log(`QuestionWord(): Rerouter: ${QWord}`);
+
+  if (QWord.includes("who")) answer = QuestionWordWho(qpart, t);
+  else if (QWord.includes("when") || QWord.includes("why"))
+    answer = QuestionWordWhenWhy(qpart, t);
+  else if (QWord.includes("where")) answer = QuestionWordWhere(qpart, t);
+  else if (QWord.includes("what")) answer = QuestionWordWhat(qpart, t);
+  else if (QWord.includes("which")) answer = QuestionWordWhich(qpart, t);
+  if (/*QWord.includes("How") || QWord.includes("Where") ||*/ IsSimple(qpart))
+    answer = Simple(qpart, t) || answer;
+  if (!answer) answer = QuestionWordObject(qpart, t) || answer;
+  if (!answer) answer = DeIndirect(q, t) || answer;
+
+  return answer;
+}
+
+//function EvalQuestionWord() {}
+
+//function Choice() {}
+
+//function EvalChoice() {}
+
+//example: You will go to the party, won't you?
+//just remove tag and then TenseTest
+function Tag(q, t) {
+  return false;
+}
+
+//https://image.slidesharecdn.com/basicstructurev2-121202115747-phpapp02/95/basic-english-structure-7-638.jpg?cb=1396347412
+function QuestionWordObject(q, t) {}
+
+//https://learnenglishwithdemi.files.wordpress.com/2015/01/indirect-questions-3-728.jpg
+function DeIndirect(q, t) {
+  //remove introductory sentence
+  //call QuestionWord
+}
+
+/*//https://www.fluentu.com/blog/english/questions-in-english-grammar/#AskingNegativeQuestionsForConfirmation
+function Negative() {
+
+}
+*/
+
+//console.error(GetHint("How are you?", ""));
+//console.error(GetHint("Is Anne French?", ""));
+//console.error(GetHint("How can a dog jump that high?"), "");
+
+function GetHint(q, t) {
+  console.log(`GetHint(): ${q}`);
+
+  var qpart = nlp(q)
+    .match(
+      "#QuestionWord (#Verb|Will) (#ProperNoun|#Noun|#Pronoun) (#Verb|done) *"
+    )
+    .clone();
+
+  if (!qpart.found) {
+    qpart = nlp(q)
+      .match(
+        "#QuestionWord (#Verb|Will) .? (#ProperNoun|#Noun|#Pronoun) (#Verb|done) *"
+      )
+      .clone();
+  }
+
+  var result = "";
+  var extraMessage = "";
+
+  if (qpart.found) {
+    qpart = nlp(q).clone();
+    qpart.remove("^#QuestionWord");
+    var verby = qpart.matchOne("^(#Verb|Will)").clone();
+    qpart.matchOne("^(#Verb|Will)").remove();
+    var prenoun = qpart.matchOne(".? (#ProperNoun|#Noun|#Pronoun)").clone();
+    qpart.matchOne(".? (#ProperNoun|#Noun|#Pronoun)").remove();
+    var remain = qpart.clone();
+    remain.terms().last().post(" ");
+    result = `${prenoun.text() + " " + verby.text() + " " + remain.text()}`;
+    extraMessage = ` This is a wh- question. Sometimes the hinter may not work. If you get total nonsense, try this:<br/><ol><li>Find the subject (John, he, his dog)</li><li>Find the main verb (drives, jumps, has)</li><li>Find whatever comes after the main verb.</li><li>Combine them in something like this: Subject MainVerb Remainder</li></ol>`;
+  }
+  if (result === "" && IsSimple(nlp(q))) {
+    qpart = nlp(q).clone();
+    result = SimpleHint(qpart, t);
+    //result = (nlp(q), t);
+  }
+  if (result === "" && IsYesNo(nlp(q))) {
+    qpart = nlp(q).clone();
+    result = YesNoHint(qpart, t);
+  }
+  if (result === "") {
+    return `Sorry, an error has occured. We're not sure what happened.`;
+  }
+  return `
+  Try this:<br/>${htmlspecialchars(
+    result
+  )}<br/>(You might need to correct the grammar or tense!${extraMessage})`;
+}
+
+function htmlspecialchars(str) {
+  var div = document.createElement("div");
+  var text = document.createTextNode(str);
+  div.appendChild(text);
+  return div.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+function SimpleHint(qpart, t) {
+  if (qpart.match("^(Who|What|When|How|Why|Where|Which)").found) {
+    console.log("QuestionWord Simple()");
+    qpart.remove("^#QuestionWord");
+    var vbe = qpart.match("^#Verb").clone();
+    qpart.remove("^#Verb");
+    var subject = qpart.clone();
+    subject.terms().last().post(" ");
+
+    var phrase = nlp(
+      subject.text() + " " + vbe.text() + " (Insert Your Text Here)"
+    );
+
+    if (
+      phrase.text().toLowerCase() ===
+      phrase.sentences().toNegative().text().toLowerCase()
+    )
+      return `${phrase.text()}`;
+
+    return `${phrase.text()}
+    or
+    ${phrase.sentences().toNegative().text()};`;
+  } else {
+    console.log("Normal Simple()");
+    var qpartt = qpart.clone();
+    var vbet = qpartt.match("^#Verb").clone();
+    qpartt.remove("^#Verb");
+    var subjectt = qpartt.match("^(#ProperNoun|#Pronoun|#Noun)").clone();
+    qpartt.remove("^(#ProperNoun|#Pronoun|#Noun)");
+    var remain = qpartt.clone();
+    remain.terms().last().post(" ");
+
+    var phraset = nlp(
+      subjectt.text() + " " + vbet.text() + " " + remain.text()
+    );
+
+    if (
+      phraset.text().toLowerCase() ===
+      phraset.sentences().toNegative().text().toLowerCase()
+    )
+      return `${phraset.text()}`;
+
+    return `${phraset.text()}
+    or
+    ${phraset.sentences().toNegative().text()};`;
+    /*console.error(
+      `stt: ${phrase.text()} ${t.text()} ${SimpleTenseTest(phrase, t)}`
+    );
+    console.error(
+      `stt: ${past.text()} ${t.text()} ${SimpleTenseTest(past, t)}`
+    );
+    console.error(
+      `stt: ${future.text()} ${t.text()} ${SimpleTenseTest(future, t)}`
+    );
+    console.error(
+      `stt: ${present.text()} ${t.text()} ${SimpleTenseTest(present, t)}`
+    );*/
+  }
+}
+function YesNoHint(qpart, t) {
+  var Auxiliary = qpart.matchOne("(#Verb|Will)").clone();
+  qpart.matchOne("(#Verb|Will)").remove();
+  var Subject = qpart.matchOne("(#ProperNoun|#Noun|#Pronoun)").clone();
+  qpart.matchOne("(#ProperNoun|#Noun|#Pronoun)").remove();
+  var MainVerb = qpart.matchOne("#Verb").clone();
+  qpart.verbs().first().remove();
+
+  console.log(`YesNo(): Remainder: "${qpart.text()}"`);
+  console.log(`YesNo(): Auxiliary: "${Auxiliary.text()}"`);
+  console.log(`YesNo(): Subject: "${Subject.text()}"`);
+  console.log(`YesNo(): MainVerb: "${MainVerb.text()}"`);
+
+  var phrase = nlp(
+    Subject.text() +
+      " " +
+      Auxiliary.text().toLowerCase() +
+      " " +
+      MainVerb.text() +
+      " " +
+      qpart.text()
+  );
+  return phrase.text();
+}
