@@ -1,8 +1,8 @@
 {
   "name": "requestion",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "A detector which uses FinNLP to detect when or if a sentence is a restatement of a question.",
-  "main": "package/index.js",
+  "main": "package/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
