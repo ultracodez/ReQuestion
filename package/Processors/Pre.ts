@@ -6,9 +6,9 @@ class OptionsObject {
   NoMessageLog: boolean = false;
   PrepositionTest: boolean = false;
   EvaluationMode: Mode;
-  DoTag: boolean;
-  DoQuestionWord: boolean;
-  DoYesNo: boolean;
+  DoTag: boolean = true;
+  DoQuestionWord: boolean = true;
+  DoYesNo: boolean = true;
 }
 
 function PreProcess(
