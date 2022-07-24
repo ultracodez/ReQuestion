@@ -16,5 +16,21 @@
   "bugs": {
     "url": "https://github.com/Ultra-max99/ReQuestion.Io/issues"
   },
+  "dependencies": {
+    "compromise": "14.0.0",
+    "compromise-sentences": "0.3.0",
+    "en-inflectors": "1.0.12",
+    "en-norm": "0.0.3",
+    "en-stemmer": "1.0.3",
+    "fin-emphasis": "1.0.6",
+    "fin-negation": "1.0.8",
+    "fin-sentence-type": "1.0.3",
+    "fin-sentiment": "1.0.6",
+    "fin-tense": "1.0.2",
+    "fin-ukus": "1.0.1",
+    "finnlp": "1.1.1",
+    "gender-detection-from-name": "1.7.3",
+    "humannames": "1.0.5"
+  },
   "homepage": "https://github.com/Ultra-max99/ReQuestion.Io#readme"
 }
