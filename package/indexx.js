@@ -25,6 +25,7 @@ if (!DEBUG) {
   console.success = function () {};
 } /**/
 
+export default IsRestatement;
 export function IsRestatement(q, t, options) {
 
   if (!DEBUG) {
